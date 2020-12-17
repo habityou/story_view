@@ -703,7 +703,6 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                         verticalDragInfo = null;
                       },
               )),
-          widget.header != null ? widget.header : SizedBox(),
           Align(
             alignment: Alignment.centerLeft,
             heightFactor: 1,
@@ -713,6 +712,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                 }),
                 width: 70),
           ),
+          widget.header != null ? widget.header : SizedBox(),
         ],
       ),
     );
