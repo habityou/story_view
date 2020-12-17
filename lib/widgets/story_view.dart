@@ -378,7 +378,7 @@ class StoryView extends StatefulWidget {
   final Function(Direction) onVerticalSwipeComplete;
 
   /// Callback for when a story is currently being shown.
-  final ValueChanged<StoryItem> onStoryShow;
+  final Function(StoryItem, int) onStoryShow;
 
   /// Where the progress indicator should be placed.
   final ProgressPosition progressPosition;
@@ -514,8 +514,13 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
       return !it.shown;
     });
 
+    // get the next playing page
+    final storyItemIndex = widget.storyItems.indexWhere((it) {
+      return !it.shown;
+    });
+
     if (widget.onStoryShow != null) {
-      widget.onStoryShow(storyItem);
+      widget.onStoryShow(storyItem, storyItemIndex);
     }
 
     _animationController =
