@@ -386,6 +386,9 @@ class StoryView extends StatefulWidget {
   /// Should the story be repeated forever?
   final bool repeat;
 
+  /// Should the story be repeated forever?
+  final Widget header;
+
   /// If you would like to display the story as full-page, then set this to
   /// `false`. But in case you would display this as part of a page (eg. in
   /// a [ListView] or [Column]) then set this to `true`.
@@ -399,6 +402,7 @@ class StoryView extends StatefulWidget {
     @required this.controller,
     this.onComplete,
     this.onStoryShow,
+    this.header,
     this.progressPosition = ProgressPosition.top,
     this.repeat = false,
     this.inline = false,
@@ -694,6 +698,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                         verticalDragInfo = null;
                       },
               )),
+          widget.header != null ? widget.header : SizedBox(),
           Align(
             alignment: Alignment.centerLeft,
             heightFactor: 1,
