@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'dart:async';
+import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'story_video.dart';
@@ -624,50 +625,39 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
       color: Colors.white,
       child: Stack(
         children: <Widget>[
-          _currentView,
-          Align(
-            alignment: widget.progressPosition == ProgressPosition.top
-                ? Alignment.topCenter
-                : Alignment.bottomCenter,
-            child: SafeArea(
-              bottom: widget.inline ? false : true,
-              // we use SafeArea here for notched and bezeles phones
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: PageBar(
-                  widget.storyItems
-                      .map((it) => PageData(it.duration, it.shown))
-                      .toList(),
-                  this._currentAnimation,
-                  key: UniqueKey(),
-                  indicatorHeight: widget.inline
-                      ? IndicatorHeight.small
-                      : IndicatorHeight.large,
-                ),
-              ),
-            ),
-          ),
           Align(
               alignment: Alignment.centerRight,
               heightFactor: 1,
-              child: GestureDetector(
-                onTapDown: (details) {
-                  widget.controller.pause();
+              child: RawGestureDetector(
+                gestures: {
+                  TapGestureRecognizer: GestureRecognizerFactoryWithHandlers<
+                      TapGestureRecognizer>(
+                    () => TapGestureRecognizer(), //constructor
+                    (TapGestureRecognizer instance) {
+                      //initializer
+                      instance.onTapDown = (details) {
+                        widget.controller.pause();
+                      };
+                      instance.onTapCancel = () {
+                        widget.controller.play();
+                      };
+                      instance.onTapUp = (details) {
+                        // if debounce timed out (not active) then continue anim
+                        if (_nextDebouncer?.isActive == false) {
+                          widget.controller.play();
+                        } else {
+                          widget.controller.next();
+                        }
+                      };
+                    },
+                  )
                 },
-                onTapCancel: () {
-                  widget.controller.play();
-                },
-                onTapUp: (details) {
-                  // if debounce timed out (not active) then continue anim
-                  if (_nextDebouncer?.isActive == false) {
-                    widget.controller.play();
-                  } else {
-                    widget.controller.next();
-                  }
-                },
+                child: _currentView,
+              )),
+          Align(
+            alignment: Alignment.centerRight,
+            heightFactor: 1,
+            child: GestureDetector(
                 onVerticalDragStart: widget.onVerticalSwipeComplete == null
                     ? null
                     : (details) {
@@ -701,8 +691,8 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                         }
 
                         verticalDragInfo = null;
-                      },
-              )),
+                      }),
+          ),
           Align(
             alignment: Alignment.centerLeft,
             heightFactor: 1,
@@ -711,6 +701,31 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                   widget.controller.previous();
                 }),
                 width: 70),
+          ),
+          Align(
+            alignment: widget.progressPosition == ProgressPosition.top
+                ? Alignment.topCenter
+                : Alignment.bottomCenter,
+            child: SafeArea(
+              bottom: widget.inline ? false : true,
+              // we use SafeArea here for notched and bezeles phones
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: PageBar(
+                  widget.storyItems
+                      .map((it) => PageData(it.duration, it.shown))
+                      .toList(),
+                  this._currentAnimation,
+                  key: UniqueKey(),
+                  indicatorHeight: widget.inline
+                      ? IndicatorHeight.small
+                      : IndicatorHeight.large,
+                ),
+              ),
+            ),
           ),
           widget.header != null ? widget.header : SizedBox(),
         ],
