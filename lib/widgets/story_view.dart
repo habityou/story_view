@@ -390,6 +390,9 @@ class StoryView extends StatefulWidget {
   /// Should the story be repeated forever?
   final Widget header;
 
+  /// Wrapper for the progress bar.
+  final Function progressWrapper;
+
   /// If you would like to display the story as full-page, then set this to
   /// `false`. But in case you would display this as part of a page (eg. in
   /// a [ListView] or [Column]) then set this to `true`.
@@ -405,6 +408,7 @@ class StoryView extends StatefulWidget {
     this.onStoryShow,
     this.header,
     this.progressPosition = ProgressPosition.top,
+    this.progressWrapper,
     this.repeat = false,
     this.inline = false,
     this.onVerticalSwipeComplete,
@@ -706,26 +710,49 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
             alignment: widget.progressPosition == ProgressPosition.top
                 ? Alignment.topCenter
                 : Alignment.bottomCenter,
-            child: SafeArea(
-              bottom: widget.inline ? false : true,
-              // we use SafeArea here for notched and bezeles phones
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: PageBar(
-                  widget.storyItems
-                      .map((it) => PageData(it.duration, it.shown))
-                      .toList(),
-                  this._currentAnimation,
-                  key: UniqueKey(),
-                  indicatorHeight: widget.inline
-                      ? IndicatorHeight.small
-                      : IndicatorHeight.large,
-                ),
-              ),
-            ),
+            child: widget.progressWrapper != null
+                ? widget.progressWrapper(
+                    SafeArea(
+                      bottom: widget.inline ? false : true,
+                      // we use SafeArea here for notched and bezeles phones
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: PageBar(
+                          widget.storyItems
+                              .map((it) => PageData(it.duration, it.shown))
+                              .toList(),
+                          this._currentAnimation,
+                          key: UniqueKey(),
+                          indicatorHeight: widget.inline
+                              ? IndicatorHeight.small
+                              : IndicatorHeight.large,
+                        ),
+                      ),
+                    ),
+                  )
+                : SafeArea(
+                    bottom: widget.inline ? false : true,
+                    // we use SafeArea here for notched and bezeles phones
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: PageBar(
+                        widget.storyItems
+                            .map((it) => PageData(it.duration, it.shown))
+                            .toList(),
+                        this._currentAnimation,
+                        key: UniqueKey(),
+                        indicatorHeight: widget.inline
+                            ? IndicatorHeight.small
+                            : IndicatorHeight.large,
+                      ),
+                    ),
+                  ),
           ),
           widget.header != null ? widget.header : SizedBox(),
         ],
